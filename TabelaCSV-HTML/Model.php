@@ -39,7 +39,7 @@ class Model {
 	    $cpf = str_pad($cpf, 11, '0', STR_PAD_LEFT);
 	    //Verifica se o número de dígitos informados diferente de 11, caso sim, retorna a linha analisada com cpf em branco(alterando o valor anterior). 
 	    if (strlen($cpf) != 11) {
-            $linhamatrizreorganizada[$cpfindice] = "";
+            $linhamatrizreorganizada[$cpfindice] = "----";
 		    return $linhamatrizreorganizada;
 	    }
 	    //Verifica se alguma das sequências inválidas abaixo foi digitada, caso sim, retorna a linha analisada com cpf em branco(alterando o valor anterior).
@@ -53,7 +53,7 @@ class Model {
                     $cpf == '77777777777' || 
                     $cpf == '88888888888' || 
                     $cpf == '99999999999') {
-               $linhamatrizreorganizada[$cpfindice] = "";
+               $linhamatrizreorganizada[$cpfindice] = "----";
                return $linhamatrizreorganizada;
            //Calcula os dígitos verificadores para verificar se o CPF não é válido, caso sim, retorna a linha analisada com cpf em branco(alterando o valor anterior).
            } else {
@@ -64,7 +64,7 @@ class Model {
                    }
                    $d = ((10 * $d) % 11) % 10;
                    if ($cpf{$c} != $d) {
-                       $linhamatrizreorganizada[$cpfindice] = "";
+                       $linhamatrizreorganizada[$cpfindice] = "----";
                        return $linhamatrizreorganizada;
                    }
                }
@@ -81,7 +81,7 @@ class Model {
         $email = $linhamatrizreorganizada[$emailindice];
         $email = filter_var($email, FILTER_VALIDATE_EMAIL);
         if ($email === FALSE){
-            $linhamatrizreorganizada[$emailindice] = "";
+            $linhamatrizreorganizada[$emailindice] = "----";
             return $linhamatrizreorganizada;
         } else {
             return $linhamatrizreorganizada;
@@ -97,7 +97,7 @@ class Model {
         $datanasc = $linhamatrizreorganizada[$dataindice];
         $data = explode("/", $datanasc);
         if (count($data)!==3){
-            $linhamatrizreorganizada[$dataindice] = "";
+            $linhamatrizreorganizada[$dataindice] = "----";
             return $linhamatrizreorganizada;
         } else {
             $dia = $data[0];
@@ -106,7 +106,7 @@ class Model {
             if (checkdate($mes , $dia , $ano)===TRUE){
                 return $linhamatrizreorganizada;
             } else {
-                $linhamatrizreorganizada[$dataindice] = "";
+                $linhamatrizreorganizada[$dataindice] = "----";
                 return $linhamatrizreorganizada;
             }
         }  
@@ -117,14 +117,16 @@ class Model {
         $handle = Model::abrirArquivo();
         $colunasrequeridas = $this->colunasrequeridas;
         $indicecolunasrequeridas = array();
-        
-        $linhazeromatriz = fgetcsv($handle, 1000, ",");
+        $linhazeromatriz = fgetcsv($handle, 1000, ",");        
         fclose($handle);
         
         for ($i = 0 ; $i<count($linhazeromatriz) ; $i++){
             for ($n=0 ; $n<count($colunasrequeridas) ; $n++){
                 if(($linhazeromatriz[$i]) == $colunasrequeridas[$n]){
-                    $indicecolunasrequeridas[] = ($n); //vai encontrar o valor do índice do elemento requerido na ordem requerida associado à ordem do índice da matriz original
+                    $indicecolunasrequeridas[$n] = ($i); //vai encontrar o valor do índice do elemento requerido na ordem requerida associado à ordem do índice da matriz original
+                    
+                    //print_r("requerida: " . $colunasrequeridas[$n]. $n . " / Arquivo: " . $linhazeromatriz[$i] . $i );
+                    //echo "<br>";
                 }
             }
         }
@@ -144,24 +146,33 @@ class Model {
         while ((($linhamatriz = fgetcsv($handle, 1000, ",")) !== (FALSE || NULL))) {// && $row<=X, limitar linhas percorridas à intX para testes.
             
             //gera a nova linha $linhamatrizreorganizada com base na correlação de indices das colunas ($indicecolunasrequeridas) entre a linha advinda do fgetcsv, $linhamatriz, e os indices das colunas requisitadas, $colunasrequeridas, na entrada do objeto, $arquivoo.
-            for ($i = 0 ; $i<count($linhamatriz) ; $i++){                     //percorre as colunas da linha do arquivo obtidas pelo fgetcsv.
-                if (in_array($i, $indicecolunasrequeridas)){                  //filtra apenas as colunas requisitadas
-                    for ($n = 0 ; $n<count($indicecolunasrequeridas) ; $n++){ //percorre as colunas requeridas
-                        //analisa se determinada coluna da $linhamatriz corresponde à alguma $colunasrequeridas, se sim, obtém o valor dessa coluna da $linhamatriz para a $linhamatrizreorganizada.
-                        if ($indicecolunasrequeridas[$n]==$i) {               
-                            $linhamatrizreorganizada[$indicecolunasrequeridas[$i]] = $linhamatriz[$i];
-
-                        }
-                    }
+            for ($i = 0 ; $i<count($linhamatriz) ; $i++){                   //percorre as colunas da linha do arquivo obtidas pelo fgetcsv.
+                if (in_array($i, $indicecolunasrequeridas)){                //filtra apenas as colunas requisitadas
+                    $chave = array_search($i, $indicecolunasrequeridas);    //identifica os novos indices a serem atribuidos baseado nas colunas requeridas
+                    $linhamatrizreorganizada[$chave] = $linhamatriz[$i];    //gera a nova linha filtrada e reordenada, adaptavel à ordem e quantidade das                                                             colunas requeridas independente da ordem e quantidade de colunas presentes no                                                           arquivo csv.
+                    //print_r($linhamatrizreorganizada);
+                    //echo "<br>";
+                    
                 }
             }
+            
             //reordena as colunas de cada linha para a respectiva ordem de entrada do parâmetro de entrada $colunasrequeridas (tal ordem foi repassada através da associação de indices realizada pelo método pegarIndicecolunasrequeridas() ).
             ksort($linhamatrizreorganizada);
             
-            //Chamada das funções validadoras
-            $linhamatrizreorganizada = Model::verificarDatanascimentovalido($linhamatrizreorganizada);
-            $linhamatrizreorganizada = Model::verificarEmailvalido($linhamatrizreorganizada);
-            $linhamatrizreorganizada = Model::verificarCpfvalido($linhamatrizreorganizada);
+            //Chamada das funções validadoras, estas funções vão verificar a validade de determinados campos (datanascimento, email, cpf), caso os mesmos estejam presentes no arquivo .csv. Os if's verificam as existências dessas colunas antes de realizar o tratamento, após a verificação oscampos inválidos serão retornados com "----".
+            
+            if (in_array("datanascimento", $this->colunasrequeridas)){
+                $linhamatrizreorganizada = Model::verificarDatanascimentovalido($linhamatrizreorganizada);
+            }
+            if (in_array("email", $this->colunasrequeridas)){
+                $linhamatrizreorganizada = Model::verificarEmailvalido($linhamatrizreorganizada);
+            }
+            if (in_array("cpf", $this->colunasrequeridas)){
+                $linhamatrizreorganizada = Model::verificarCpfvalido($linhamatrizreorganizada);
+            }
+                
+            
+            
             
             $matriz[] = $linhamatrizreorganizada;
             //reseta a array que processa as linhas e às adicionam à matriz a cada retorno do fgetcsv.
