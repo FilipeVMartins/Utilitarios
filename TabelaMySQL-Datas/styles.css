@@ -1,0 +1,66 @@
+body {
+    font-family:Arial, Helvetica, sans-serif;
+    background-color: #fff;
+}
+
+#msg1, #msg2 {
+    padding: 0.4em;
+    width: 30%;
+    height: 10%;
+    border: thin solid #ccc;
+    border-radius: 5px;
+    border-spacing:0;
+    margin: 1px; 
+    margin-left: 0.6em;
+}
+
+form {
+    padding: 1em;
+    background-color: #d1d1e0;
+    display: block;
+    margin: 0.6em;
+    border: thin solid #ccc;
+    border-radius: 10px;
+    border-spacing:0;
+    max-width: 30%;
+}
+table { 
+    max-width:90%;
+    margin:0 auto;
+    margin-top: 1%;
+    border-spacing:0;
+    border-right:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    border-radius:
+}
+
+caption {
+    font-weight:bold;
+    padding:0.4em;
+    background-color:#d1d1e0;
+    border:1px solid #ccc;
+    text-align: left;
+}
+
+tr, td, th {
+    border: thin solid #ccc;
+    border-bottom:none;
+    border-right:none;
+    padding:0.4em;
+}
+
+td { 
+    text-align:left;
+}
+
+th {
+    text-align:left;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: ghostwhite;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f1f0f5;
+}  
