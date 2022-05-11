@@ -37,8 +37,6 @@ function Primos($inicial,$final) {
 }
 
 
-// Resposta: Array [11,13,17,19,23] 
-
 $numero_inicial = '1';
 $numero_final = '30';
 $primos_encontrados = Primos($numero_inicial, $numero_final);
